@@ -3,27 +3,29 @@ require("express-async-errors");
 
 const express = require("express");
 const app = express();
+
 // Import Errors
 const notFoundMidleware = require("./middleware/not-found");
 const errorMiddleware = require("./middleware/error-handler");
 const port = process.env.PORT || 3000;
 
+const authRouter = require("./routes/auth");
+const jobsRouter = require("./routes/jobs");
+const connectDB = require("./db/connect");
 // Middle ware
 app.use(express.json());
 
-// Route
-app.get("/", (req, res, next) => {
-  res.send("Jobs API");
-});
+// Routes
+app.use("/api/v1/auth", authRouter);
+app.use("/api/v1/jobs", jobsRouter);
 
 // Errors
 app.use(notFoundMidleware);
 app.use(errorMiddleware);
 
 const start = async (req, res, next) => {
-  // connect db
-
   try {
+    connectDB(process.env.MONGO_URI, port);
     app.listen(port);
     console.log(`Server Has started`);
   } catch (error) {
