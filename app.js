@@ -12,12 +12,13 @@ const port = process.env.PORT || 3000;
 const authRouter = require("./routes/auth");
 const jobsRouter = require("./routes/jobs");
 const connectDB = require("./db/connect");
+const authenticateUser = require("./middleware/authentication");
 // Middle ware
 app.use(express.json());
 
 // Routes
 app.use("/api/v1/auth", authRouter);
-app.use("/api/v1/jobs", jobsRouter);
+app.use("/api/v1/jobs", authenticateUser, jobsRouter);
 
 // Errors
 app.use(notFoundMidleware);
@@ -25,7 +26,7 @@ app.use(errorMiddleware);
 
 const start = async (req, res, next) => {
   try {
-    connectDB(process.env.MONGO_URI, port);
+    await connectDB(process.env.MONGO_URI, port);
     app.listen(port);
     console.log(`Server Has started`);
   } catch (error) {
